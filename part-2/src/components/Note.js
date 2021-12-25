@@ -2,7 +2,7 @@ import React from 'react'
 
 const Part = ({name, exercises}) =>{
         return(
-            <h1>{name} {exercises}</h1> 
+            <h3>{name} {exercises}</h3> 
         )
 }
 
@@ -16,9 +16,9 @@ const Note = ({ parts }) => {
       {parts.map(part => 
           <Part name={part.name} exercises={part.exercises} key={part.id}/>
         )}
-      <h4>
+      <h2>
         total of {total} exercises
-      </h4>
+      </h2>
     </>
   )
 }
