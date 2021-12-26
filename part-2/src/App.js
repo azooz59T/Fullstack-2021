@@ -49,7 +49,7 @@ const App = () => {
     event.preventDefault()
     setSearchName([]);
 
-    let re = new RegExp(`^${newsearchName}`, 'i')
+    let re = new RegExp(`${newsearchName}`, 'i')
     const foundname = persons.filter(value => re.test(value.name));
 
     if (typeof foundname !== 'undefined'){
