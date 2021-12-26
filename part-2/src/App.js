@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Filter = ({submitfunction, newsearchName, changefunction}) =>{
+const Filter = ({submitfunction, newsearchName, changefunction, clearsearch}) =>{
   return(
     <div>
       <form onSubmit={submitfunction}>
@@ -8,7 +8,7 @@ const Filter = ({submitfunction, newsearchName, changefunction}) =>{
         search: <input value={newsearchName} onChange={changefunction}/>
       </div>
       <div>
-        <button type="submit">search</button>
+        <button type="submit" onClick={clearsearch}>search</button>
       </div>
     </form>
   </div>
@@ -23,7 +23,7 @@ const App = () => {
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
 
-  const [searchName, setSearchName] = useState('')
+  const [searchName, setSearchName] = useState([])
 
   const [newName, setNewName] = useState('')
   const [newsearchName, setNewsearchName] = useState('')
@@ -40,19 +40,22 @@ const App = () => {
   const handlePhonenoChange = (event) => {
     setNewPhoneno(event.target.value)
   }
+
+  const clearsearch = (event) => {
+    setSearchName([])
+  }
   
   const search = (event) =>{
     event.preventDefault()
-    // let names = persons.map(person => person.name)
-    let foundname =persons.find(findbyname)
+    setSearchName([]);
+
+    let re = new RegExp(`^${newsearchName}`, 'i')
+    const foundname = persons.filter(value => re.test(value.name));
+
     if (typeof foundname !== 'undefined'){
-      setSearchName(foundname);
+      setSearchName(searchName.concat(foundname));
     }else{
       alert("name doesn't exist")
-    }
-
-    function findbyname(somename){
-      return somename.name === newsearchName;
     }
   }
 
@@ -65,8 +68,9 @@ const App = () => {
     }
     else{
       const person = {
+        id: (persons.length),
         name: newName,
-        phone: newPhoneno,
+        number: newPhoneno,
       }
     
       setPersons(persons.concat(person))
@@ -79,10 +83,10 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      {searchName.map(entery => <h2 key={entery.id}>{entery.name} {entery.number}</h2>)}
       <h2>{searchName.name}</h2>
       <h2>{searchName.number}</h2>
-      <h2>{searchName.id}</h2>
-      <Filter submitfunction={search} newsearchName={newsearchName} changefunction={handlesearchName}/> 
+      <Filter submitfunction={search} newsearchName={newsearchName} changefunction={handlesearchName} clearsearch={clearsearch}/> 
       <h2>add a new phonebook</h2>
       <form onSubmit={addChanges}>
         <div>
