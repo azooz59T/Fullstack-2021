@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect} from 'react'
 import axios from 'axios'
 
 const Filter = ({submitfunction, newsearchName, changefunction, clearsearch}) =>{
+  console.log(newsearchName);
   return(
     <div>
       <form onSubmit={submitfunction}>
@@ -16,11 +17,13 @@ const Filter = ({submitfunction, newsearchName, changefunction, clearsearch}) =>
   )
 }
 
-const DisplayCountry = ({searched_countries, capital, population, languages, flag}) =>{
+const DisplayCountry = ({searched_countries, capital, population, languages, flag, button_function, weather}) =>{
   if(searched_countries.length <= 10 && searched_countries.length > 1){
     return(
       <div>
-        {searched_countries.map(entery => <h2 key={entery}>{entery}</h2>)}
+        {searched_countries.map(entery => 
+        <><h2 key={entery}>{entery}</h2>
+        <button onClick={() => button_function(entery)}>dispaly</button> </>)}
         </div>
     )
   }
@@ -33,6 +36,7 @@ const DisplayCountry = ({searched_countries, capital, population, languages, fla
         <h1>Languages</h1>
         <ul>{languages.map(entery => <li key={entery}>{entery}</li>)}</ul>
         <img src={flag[0]} alt="BigCo Inc. logo"/>
+        <h2><strong>temperature is</strong> {weather - 273.15}</h2>
 
       </div>
     )
@@ -45,6 +49,10 @@ const DisplayCountry = ({searched_countries, capital, population, languages, fla
 
 const App = () => {
 
+  const api_key = "975cdea950fe4ec1e8e80d4ef221a842"
+  // process.env.REACT_APP_API_KEY
+  
+
   useEffect(() => {
     axios.get('https://restcountries.com/v3.1/all').then(response => {
       setCountries(Countries.concat(response.data))
@@ -52,6 +60,7 @@ const App = () => {
       // eslint-disable-next-line
   }, [])
 
+  const [Weather, setWeather] = useState([])
   const [searchName, setSearchName] = useState([])
   const [Countries, setCountries] = useState([])
   const [country_info, setCountry_info] = useState([])
@@ -60,13 +69,25 @@ const App = () => {
   const [country_languages, setCountry_languages] = useState([])
   const [country_flag, setCountry_flag] = useState([])
 
+  useEffect(() => {
+      if(country_capital.length !== 0){
+        axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${country_capital}&appid=${api_key}`).then(response => {
+          setWeather(Weather.concat(response.data.main.temp))
+          })
+          // eslint-disable-next-line
+      }
+    }, [country_capital, Weather])
+
+  console.log(Weather);
+
   const [newsearchName, setNewsearchName] = useState('')
 
   const handlesearchName = (event) => {
     setNewsearchName(event.target.value)
   }
-
+ 
   const clearsearch = (event) => {
+    setWeather([])
     setSearchName([])
     setCountry_info([])
     setCountry_capital([])
@@ -77,6 +98,8 @@ const App = () => {
   
   const search = (event) =>{
     event.preventDefault()
+    console.log("is submitted");
+
 
     const countrynames = Countries.map(country => country.name.common)
 
@@ -115,7 +138,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Filter submitfunction={search} newsearchName={newsearchName} changefunction={handlesearchName} clearsearch={clearsearch}/> 
-      <DisplayCountry searched_countries={searchName} capital={country_capital} population={country_population}
+      <DisplayCountry searched_countries={searchName} capital={country_capital} population={country_population} weather={Weather}
       languages={country_languages} flag={country_flag}/>
     </div>
   )
