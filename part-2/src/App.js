@@ -16,7 +16,32 @@ const Filter = ({submitfunction, newsearchName, changefunction, clearsearch}) =>
   )
 }
 
+
+const Notification = ({ message }) => {
+  const success = {
+    color: 'green',
+    fontStyle: 'italic',
+    fontSize: 16,
+  };
+  
+
+
+  if (message === null) {
+    return null
+  }
+  else{
+    success.color = (message.charAt(0) === 'G') ? 'green' : 'red'
+  }
+  
+  return (
+    <div style={success}>
+      {message.substring(1)}
+    </div>
+  )
+}
+
 const App = () => {
+  const [errorMessage, setErrorMessage] = useState(null)
   const [persons, setPersons] = useState([])
 
   const [searchName, setSearchName] = useState([])
@@ -24,6 +49,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newsearchName, setNewsearchName] = useState('')
   const [newPhoneno, setNewPhoneno] = useState('')
+
 
   const handlesearchName = (event) => {
     setNewsearchName(event.target.value)
@@ -82,6 +108,14 @@ const App = () => {
         .update(id, updatedperson)
         .then(response => {
           setPersons(persons.map(person => person.id !== id ? person : response))
+      }).catch(error => {
+        setErrorMessage(
+          `Rthe person ${person.name} was already removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        setPersons(persons.filter(n => n.id !== id))
       })
       }
     }
@@ -97,6 +131,12 @@ const App = () => {
         setPersons(persons.concat(returnedpeople))
         setNewName('')
         setNewPhoneno('')
+        setErrorMessage(
+          `Gadded ${person.name}'s number `
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       })
     
     }
@@ -117,6 +157,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={errorMessage} />
       <h2>Phonebook</h2>
       {searchName.map(entery => <h2 key={entery.id}>{entery.name} {entery.number}</h2>)}
       <h2>{searchName.name}</h2>
