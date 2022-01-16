@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let Phonebook  = [
   { 
     "id": 1,
@@ -69,25 +71,36 @@ app.get('/api/persons', (request, response) => {
   response.json(Phonebook)
 })
 
-// app.get('/api/notes', (request, response) => {
-//   response.json(notes)
-// })
+app.post('/api/persons', (request, response) => {
+  const names = Phonebook.map(person => person.name)
 
-app.get('/api/notes/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const note = notes.find(note => note.id === id)
-  
-  if (note) {
-    response.statusMessage = "note doesnt exist";
-    response.json(note)
-  } else {
-    response.status(404).end()
+  if(names.includes(request.body.name)){
+    response.status(404).send({ error: 'name must be unique' })
   }
+
+  if(!request.body.name || !request.body.number){
+    response.status(404).send({ error: 'you should enter a name and a number' })
+  }
+
+  else{
+    const random_Id = Math.random() * (700 - 3) + 3;
+    console.log(...names);
+
+    const person = request.body
+    person.id = random_Id
+
+    console.log(request.body.name);
+    Phonebook = Phonebook.concat(person)
+
+    response.json(person)
+  }
+  
 })
 
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
+  Phonebook = Phonebook.filter(person => person.id !== id)
+  console.log(`the person with the id ${id} has been removed`);
 
   response.status(204).end()
 })
